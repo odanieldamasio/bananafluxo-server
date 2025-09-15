@@ -78,4 +78,12 @@ export class TransactionsService {
       throw new NotFoundException(`Transaction with id ${id} not found`);
     }
   }
+
+  async findAllByUserId(userId: string): Promise<Transaction[]> {
+    return await this.prismaService.transaction.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      include: { installmentsList: true },
+    });
+  }
 }
