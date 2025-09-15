@@ -12,11 +12,14 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('BananaFluxo')
     .setDescription('Endpoints da API do 🍌BananaFluxo')
     .setVersion('1.0')
     .addTag('banana')
+    .addBearerAuth()
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

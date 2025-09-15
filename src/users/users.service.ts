@@ -2,7 +2,6 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { PrismaErrors } from 'src/prisma/prisma-errors.enum';
 import { UserResponseDto } from './dto/response-user.dto';
 
 @Injectable()
@@ -38,7 +37,13 @@ export class UsersService {
     return safeUser;
   }
 
-  async findOne(id: string): Promise<UserResponseDto | null> {
+  async findOneById(id: string): Promise<UserResponseDto | null> {
     return this.prismaService.user.findUnique({ where: { id } });
+  }
+
+  async findOneByEmail(email: string) {
+    return this.prismaService.user.findUnique({
+      where: { email },
+    });
   }
 }
