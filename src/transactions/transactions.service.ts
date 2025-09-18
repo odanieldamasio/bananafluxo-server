@@ -7,7 +7,6 @@ import { Transaction, Installment } from '@prisma/client';
 export class TransactionsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  // Criação simples de transaction
   async create(
     createTransactionDto: CreateTransactionDto,
     userId: string,
@@ -21,7 +20,6 @@ export class TransactionsService {
     });
   }
 
-  // Criação de transaction + installments
   async createTransactionWithInstallments(
     createTransactionDto: CreateTransactionDto,
     userId: string,
@@ -67,7 +65,6 @@ export class TransactionsService {
     });
   }
 
-  // Buscar transaction pelo id ou lançar NotFound
   async findUniqueOrThrow(id: string): Promise<Transaction> {
     try {
       return await this.prismaService.transaction.findUniqueOrThrow({
