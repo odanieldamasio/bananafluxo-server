@@ -33,4 +33,20 @@ export class StripeService {
   async getSubscription(subscriptionId: string) {
     return this.stripe.subscriptions.retrieve(subscriptionId);
   }
+
+  async createCheckoutSession(customerId: string, priceId: string) {
+    return this.stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      customer: customerId,
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: 'http://localhost:3000/success',
+      cancel_url: 'http://localhost:3000/cancel',
+    });
+  }
 }

@@ -19,4 +19,13 @@ export class StripeController {
   async getSubscription(@Query('id') subscriptionId: string) {
     return this.stripeService.getSubscription(subscriptionId);
   }
+
+  @Post('checkout-session')
+  async createCheckout(@Body() body: { customerId: string; priceId: string }) {
+    const session = await this.stripeService.createCheckoutSession(
+      body.customerId,
+      body.priceId,
+    );
+    return { url: session.url };
+  }
 }
