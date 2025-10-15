@@ -4,5 +4,4 @@ export class UserResponseDto {
   username: string;
   email: string;
   createdAt: Date;
-  updatedAt: Date;
 }

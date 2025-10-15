@@ -76,6 +76,20 @@ export class TransactionsService {
     }
   }
 
+  async findUniqueByIdOrThrow(
+    id: string,
+    userId: string,
+  ): Promise<Transaction> {
+    try {
+      return await this.prismaService.transaction.findUniqueOrThrow({
+        where: { id, userId },
+        include: { installmentsList: true },
+      });
+    } catch (error) {
+      throw new NotFoundException(`Transaction with id ${id} not found`);
+    }
+  }
+
   async findAllByUserId(userId: string): Promise<Transaction[]> {
     return await this.prismaService.transaction.findMany({
       where: { userId },
