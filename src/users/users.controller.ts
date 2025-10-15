@@ -3,7 +3,7 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/response-user.dto';
 import { ApiOperation } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -15,8 +15,14 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
+  @Get()
+  @ApiOperation({ summary: 'Find all users' })
+  async findAll(): Promise<UserResponseDto[] | null> {
+    return this.usersService.findAll();
+  }
+
   @Get(':id')
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Find user by id' })
   async findOne(@Param('id') id: string): Promise<UserResponseDto | null> {
     return this.usersService.findOneById(id);

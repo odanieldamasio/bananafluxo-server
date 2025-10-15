@@ -41,6 +41,10 @@ export class UsersService {
     return this.prismaService.user.findUnique({ where: { id } });
   }
 
+  async findAll(): Promise<UserResponseDto[] | null> {
+    return this.prismaService.user.findMany();
+  }
+
   async findOneByEmail(email: string) {
     return this.prismaService.user.findUnique({
       where: { email },

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TransactionsService } from './transactions.service';
@@ -27,5 +27,14 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Find transactions by user' })
   async findAll(@CurrentUser() userId: string): Promise<Transaction[]> {
     return this.transactionsService.findAllByUserId(userId);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Find one transactions by id of user' })
+  async findOneById(
+    @Param('id') id: string,
+    @CurrentUser() userId: string,
+  ): Promise<Transaction> {
+    return this.transactionsService.findUniqueByIdOrThrow(id, userId);
   }
 }
