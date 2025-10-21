@@ -7,7 +7,7 @@ export class SubscriptionGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const user = request.user; // supondo que você já tenha autenticação
+    const user = request.user;
     if (!user.stripeSubscriptionId) return false;
 
     const subscription = await this.stripeService.getSubscription(

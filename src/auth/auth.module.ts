@@ -3,17 +3,19 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { UsersModule } from '../users/users.module';
 import { JwtStrategy } from './strategies/jwt.stategy';
 import { LocalStrategy } from './strategies/local.stategy';
+import { UsersModule } from 'src/users/users.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule,
+    ConfigModule,
     JwtModule.register({
-      secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: process.env.JWT_EXPIRES_IN || '7d' },
+      secret: 'banana_fluxo_secret',
+      signOptions: { expiresIn: '7d' },
     }),
   ],
   controllers: [AuthController],
