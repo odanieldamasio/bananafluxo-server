@@ -6,8 +6,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
 } from 'typeorm';
 import { Transaction } from '../../transactions/entities/transaction.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Entity('categories')
 export class Category {
@@ -17,8 +19,14 @@ export class Category {
   @Column()
   name: string;
 
+  @Column()
+  userId: string;
+
   @OneToMany(() => Transaction, (transaction) => transaction.category)
   transactions: Transaction[];
+
+  @ManyToOne(() => User, (user) => user.transactions, { onDelete: 'CASCADE' })
+  user: User;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

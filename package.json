@@ -18,7 +18,16 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "ts-node ./node_modules/.bin/typeorm -d ./src/database/data-source.ts"
+    "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js --dataSource src/database/data-source.ts",
+    "migration:generate": "npm run typeorm migration:generate",
+    "migration:create": "npm run typeorm migration:create",
+    "migration:run": "npm run typeorm migration:run",
+    "migration:revert": "npm run typeorm migration:revert",
+    "migration:show": "npm run typeorm migration:show",
+    "db:init": "npm run migration:run",
+    "db:reset": "npm run schema:drop && npm run migration:run",
+    "schema:drop": "npm run typeorm schema:drop",
+    "schema:sync": "npm run typeorm schema:sync"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.6",
@@ -55,7 +64,7 @@
     "@types/bcrypt": "^6.0.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.10.7",
+    "@types/node": "^22.18.12",
     "@types/passport-jwt": "^4.0.1",
     "@types/passport-local": "^1.0.38",
     "@types/stripe": "^8.0.416",

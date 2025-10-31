@@ -1,23 +1,25 @@
-import 'reflect-metadata';
+// src/database/data-source.ts
 import { DataSource } from 'typeorm';
 import * as dotenv from 'dotenv';
-import { User } from '../users/entities/user.entity';
-import { Transaction } from '../transactions/entities/transaction.entity';
-import { Category } from '../transactions/entities/category.entity';
 
 dotenv.config();
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432', 10),
+  port: parseInt(process.env.DB_PORT || '5432'),
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD || 'root',
   database: process.env.DB_NAME || 'bananaflow',
-  schema: 'public',
-  synchronize: false,
-  logging: true,
-  entities: [User, Transaction, Category],
-  migrations: ['src/database/migrations/*.ts'],
-  subscribers: [],
+
+  // Entidades
+  entities: ['src/**/*.entity{.ts,.js}'],
+
+  // Migrations
+  migrations: ['src/database/migrations/*{.ts,.js}'],
+  migrationsTableName: 'migrations',
+
+  // Configurações
+  synchronize: false, // IMPORTANTE: false para usar migrations
+  logging: process.env.NODE_ENV === 'development',
 });

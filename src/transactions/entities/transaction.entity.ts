@@ -1,6 +1,14 @@
 import { User } from '../../users/entities/user.entity';
 
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 import { Category } from './category.entity';
 
 export enum TransactionType {
@@ -25,7 +33,9 @@ export class Transaction {
   @Column({ type: 'enum', enum: TransactionType })
   type: TransactionType;
 
-  @ManyToOne(() => Category, (category) => category.transactions, { eager: true })
+  @ManyToOne(() => Category, (category) => category.transactions, {
+    eager: true,
+  })
   category: Category;
 
   @Column()
