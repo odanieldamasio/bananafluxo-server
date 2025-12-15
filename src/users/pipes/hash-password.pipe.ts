@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 export class HashPasswordPipe implements PipeTransform {
   constructor(private readonly configService: ConfigService) {}
 
-   async transform(password: string) {
+  async transform(password: string) {
     const salt = Number(this.configService.get('SALT_PASSWORD'));
 
     const passwordHash = await bcrypt.hash(password, salt);

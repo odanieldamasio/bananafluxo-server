@@ -9,7 +9,11 @@ import {
   IsNumber,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { TransactionType, PaymentMethod } from '../entities/transaction.entity';
+import {
+  TransactionType,
+  PaymentMethod,
+  TransactionStatus,
+} from '../entities/transaction.entity';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -28,21 +32,19 @@ export class CreateTransactionDto {
   @IsNotEmpty()
   categoryId: string;
 
-  @ApiProperty({
-    description: 'Título da transação',
-    example: 'Pagamento de salário',
-  })
-  @IsString()
-  @IsNotEmpty()
-  title: string;
-
   @ApiPropertyOptional({
-    description: 'Descrição detalhada da transação',
+    description: 'Descrição da transação',
     example: 'Salário referente ao mês de setembro',
   })
   @IsString()
-  @IsOptional()
-  description?: string;
+  description: string;
+
+  @ApiProperty({
+    description: 'Numero de parcelas, Valor da transação',
+    example: 2,
+  })
+  @IsNumber()
+  totalInstallments: number;
 
   @ApiProperty({
     description: 'Valor da transação (máx. 2 casas decimais)',
@@ -59,6 +61,13 @@ export class CreateTransactionDto {
   date: string;
 
   @ApiProperty({
+    description: 'Data de vencimento da transação no formato ISO 8601',
+    example: '2025-10-20',
+  })
+  @IsDateString()
+  dueDate: string;
+
+  @ApiProperty({
     description: 'Método de pagamento utilizado',
     enum: PaymentMethod,
     example: PaymentMethod.PIX,
@@ -66,11 +75,11 @@ export class CreateTransactionDto {
   @IsEnum(PaymentMethod)
   paymentMethod: PaymentMethod;
 
-  @ApiPropertyOptional({
-    description: 'Indica se a transação é recorrente',
-    example: false,
+  @ApiProperty({
+    description: 'Método de pagamento utilizado',
+    enum: TransactionStatus,
+    example: TransactionStatus.PENDING,
   })
-  @IsBoolean()
-  @IsOptional()
-  recurring?: boolean;
+  @IsEnum(TransactionStatus)
+  transactionStatus: TransactionStatus;
 }

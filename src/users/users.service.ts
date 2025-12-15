@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
@@ -8,17 +8,20 @@ import { CreateUserDto } from './dto/create-user.dto';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User) 
+    @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
   ) {}
-  
-  create(createUserDto: CreateUserDto): Promise<User> {
-    console.log('Creating user with data:', createUserDto);
-    const user = this.usersRepository.create({
-      ...createUserDto,
-      passwordHash: createUserDto.password,
-    });
-    return this.usersRepository.save(user);
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    try {
+      const user = this.usersRepository.create({
+        ...createUserDto,
+        passwordHash: createUserDto.password,
+      });
+      return await this.usersRepository.save(user);
+    } catch (error) {
+      throw new BadRequestException('Não foi possível criar o usuário.');
+    }
   }
 
   findAll(): Promise<UserResponseDto[] | null> {

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { TransactionsService } from '../services/transactions.service';
 import { Transaction } from '../entities/transaction.entity';
@@ -13,8 +13,9 @@ export class TransactionsController {
   @ApiOperation({ summary: 'Create a new transaction' })
   create(
     @Body() createTransactionDto: CreateTransactionDto,
+    @Headers('x-user-id') userId: string,
   ): Promise<Transaction> {
-    return this.transactionsService.create(createTransactionDto);
+    return this.transactionsService.create(createTransactionDto, userId);
   }
 
   @Get()

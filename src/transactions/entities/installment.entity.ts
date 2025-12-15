@@ -1,4 +1,5 @@
 import { User } from '../../users/entities/user.entity';
+import { Transaction } from './transaction.entity';
 
 import {
   Entity,
@@ -10,9 +11,6 @@ import {
   DeleteDateColumn,
   OneToMany,
 } from 'typeorm';
-
-import { Category } from './category.entity';
-import { Installment } from './installment.entity';
 
 export enum TransactionType {
   INCOME = 'income',
@@ -31,31 +29,22 @@ export enum TransactionStatus {
   OVERDUE = 'overdue',
 }
 
-@Entity('transactions')
-export class Transaction {
+@Entity('installments')
+export class Installment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   userId: string;
 
-  @Column()
-  categoryId: string;
-
-  @Column()
-  description: string;
-
   @Column({ type: 'int' })
-  totalInstallments: number;
+  installmentNumber: number;
+
+  @Column()
+  transactionId: string;
 
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   amount: number;
-
-  @Column({ type: 'enum', enum: TransactionType })
-  type: TransactionType;
-
-  @Column({ type: 'enum', enum: PaymentMethod })
-  paymentMethod: PaymentMethod;
 
   @Column({
     type: 'enum',
@@ -67,18 +56,10 @@ export class Transaction {
   @ManyToOne(() => User, (user) => user.transactions, { onDelete: 'CASCADE' })
   user: User;
 
-  @ManyToOne(() => Category, (category) => category.transactions, {
+  @ManyToOne(() => Transaction, (transaction) => transaction.installments, {
     onDelete: 'CASCADE',
   })
-  category: Category;
-
-  @OneToMany(() => Installment, (installment) => installment.transaction, {
-    onDelete: 'CASCADE',
-  })
-  installments: Installment[];
-
-  @Column({ type: 'timestamp' })
-  date: Date;
+  transaction: Transaction;
 
   @Column({ type: 'timestamp' })
   dueDate?: Date;
