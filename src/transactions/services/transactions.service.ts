@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, LessThanOrEqual, Repository } from 'typeorm';
-import { Transaction, TransactionStatus, TransactionType } from '../entities/transaction.entity';
+import {
+  Transaction,
+  TransactionStatus,
+  TransactionType,
+} from '../entities/transaction.entity';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { MonthlyPerformanceDto } from '../dto/monthly-performance.dto';
 import { InstallmentsService } from './installments.service';
+import { getCurrentMonthRange } from 'src/utils/date.util';
 
 @Injectable()
 export class TransactionsService {
@@ -45,14 +50,14 @@ export class TransactionsService {
   }
 
   async currentBalance(userId: string) {
-    const today = new Date();
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
 
     const transactions = await this.transactionRepository.find({
       where: {
         user: {
           id: userId,
         },
-        date: LessThanOrEqual(today),
+        date: Between(startOfMonth, endOfMonth),
       },
     });
 
@@ -70,20 +75,18 @@ export class TransactionsService {
 
   async monthlyPerformance(userId: string): Promise<MonthlyPerformanceDto[]> {
     const results: MonthlyPerformanceDto[] = [];
-    const now = new Date();
+
+    // 🔹 Base: mês anterior
+    const baseDate = new Date();
+    baseDate.setMonth(baseDate.getMonth() - 1);
 
     for (let i = 3; i >= 0; i--) {
-      const monthStart = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthEnd = new Date(
-        now.getFullYear(),
-        now.getMonth() - i + 1,
-        0,
-        23,
-        59,
-        59,
-        999,
-      );
-      console.log(userId);
+      const year = baseDate.getFullYear();
+      const month = baseDate.getMonth() - i;
+
+      const monthStart = new Date(year, month, 1);
+      const monthEnd = new Date(year, month + 1, 0, 23, 59, 59, 999);
+
       const transactions = await this.transactionRepository.find({
         where: {
           user: { id: userId },
@@ -114,10 +117,13 @@ export class TransactionsService {
   }
 
   async projectedIncome(userId: string) {
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
+
     const transactions = await this.transactionRepository.find({
       where: {
         user: { id: userId },
         type: TransactionType.INCOME,
+        date: Between(startOfMonth, endOfMonth),
       },
     });
 
@@ -126,5 +132,38 @@ export class TransactionsService {
     }, 0);
 
     return total;
+  }
+
+  async totalExpense(userId: string) {
+    const { startOfMonth, endOfMonth } = getCurrentMonthRange();
+
+    const transactions = await this.transactionRepository.find({
+      where: {
+        user: { id: userId },
+        type: TransactionType.EXPENSE,
+        date: Between(startOfMonth, endOfMonth),
+      },
+    });
+
+    const total = transactions.reduce((sum, transaction) => {
+      return sum + Number(transaction.amount);
+    }, 0);
+
+    return total;
+  }
+
+  async getLastTransactions(
+    userId: string,
+    limit: number,
+  ): Promise<Transaction[]> {
+    return this.transactionRepository.find({
+      where: {
+        user: { id: userId },
+      },
+      order: {
+        date: 'DESC',
+      },
+      take: limit,
+    });
   }
 }

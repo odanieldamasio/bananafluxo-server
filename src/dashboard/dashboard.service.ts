@@ -10,10 +10,15 @@ export class DashboardService {
       await this.transactionsService.currentBalance(userId);
     const projectedIncome =
       await this.transactionsService.projectedIncome(userId);
-    const totalExpense = 2970.25;
+    const totalExpense = await this.transactionsService.totalExpense(userId);
     const totalTransactions = 34;
     const monthlyPerformance =
       await this.transactionsService.monthlyPerformance(userId);
+
+    const lastTransactions = await this.transactionsService.getLastTransactions(
+      userId,
+      5,
+    );
 
     return {
       currentBalance,
@@ -21,6 +26,7 @@ export class DashboardService {
       totalExpense,
       totalTransactions,
       monthlyPerformance,
+      lastTransactions,
     };
   }
 }

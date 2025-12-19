@@ -33,6 +33,13 @@ export class CreateTransactionDto {
   categoryId: string;
 
   @ApiPropertyOptional({
+    description: 'Titulo da transação',
+    example: 'Salário',
+  })
+  @IsString()
+  title: string;
+
+  @ApiPropertyOptional({
     description: 'Descrição da transação',
     example: 'Salário referente ao mês de setembro',
   })
