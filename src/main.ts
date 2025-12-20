@@ -21,7 +21,6 @@ async function bootstrap() {
     .setTitle('BananaFluxo')
     .setDescription('Endpoints da API do 🍌BananaFluxo')
     .setVersion('1.0')
-    .addTag('banana')
     .addBearerAuth()
     .build();
 

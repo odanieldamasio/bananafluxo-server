@@ -1,26 +1,92 @@
-// create-transaction.dto.ts
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  IsBoolean,
+  IsDateString,
+  IsNumber,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsNumber, IsString, Min } from 'class-validator';
-import { TransactionType } from '@prisma/client';
+import {
+  TransactionType,
+  PaymentMethod,
+  TransactionStatus,
+} from '../entities/transaction.entity';
 
 export class CreateTransactionDto {
-  @ApiProperty({ enum: TransactionType, description: 'Tipo da transação' })
+  @ApiProperty({
+    description: 'Tipo da transação',
+    enum: TransactionType,
+    example: TransactionType.INCOME,
+  })
   @IsEnum(TransactionType)
   type: TransactionType;
 
-  @ApiPropertyOptional({ description: 'Descrição da transação' })
+  @ApiProperty({
+    description: 'ID da categoria associada à transação',
+    example: '53fd27e7-8933-4e7d-93c0-fc2d4a1f3fe4',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  categoryId: string;
+
+  @ApiPropertyOptional({
+    description: 'Titulo da transação',
+    example: 'Salário',
+  })
   @IsString()
-  @IsOptional()
-  description?: string;
+  title: string;
 
-  @ApiProperty({ description: 'Valor total da transação', example: 150.5 })
-  @IsNumber()
-  @Min(0)
-  totalAmount: number;
+  @ApiPropertyOptional({
+    description: 'Descrição da transação',
+    example: 'Salário referente ao mês de setembro',
+  })
+  @IsString()
+  description: string;
 
-  @ApiPropertyOptional({ description: 'Número de parcelas', example: 1 })
+  @ApiProperty({
+    description: 'Numero de parcelas, Valor da transação',
+    example: 2,
+  })
   @IsNumber()
-  @Min(1)
-  @IsOptional()
-  installments?: number;
+  totalInstallments: number;
+
+  @ApiProperty({
+    description: 'Valor da transação (máx. 2 casas decimais)',
+    example: 2500.5,
+  })
+  @IsNumber({ maxDecimalPlaces: 2 })
+  amount: number;
+
+  @ApiProperty({
+    description: 'Data da transação no formato ISO 8601',
+    example: '2025-10-20',
+  })
+  @IsDateString()
+  date: string;
+
+  @ApiProperty({
+    description: 'Data de vencimento da transação no formato ISO 8601',
+    example: '2025-10-20',
+  })
+  @IsDateString()
+  dueDate: string;
+
+  @ApiProperty({
+    description: 'Método de pagamento utilizado',
+    enum: PaymentMethod,
+    example: PaymentMethod.PIX,
+  })
+  @IsEnum(PaymentMethod)
+  paymentMethod: PaymentMethod;
+
+  @ApiProperty({
+    description: 'Método de pagamento utilizado',
+    enum: TransactionStatus,
+    example: TransactionStatus.PENDING,
+  })
+  @IsEnum(TransactionStatus)
+  transactionStatus: TransactionStatus;
 }

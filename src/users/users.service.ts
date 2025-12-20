@@ -1,53 +1,38 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcrypt';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 import { UserResponseDto } from './dto/response-user.dto';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+  ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    const { password, ...userData } = createUserDto;
-
-    const checkIfUserExists = await this.prismaService.user.findFirst({
-      where: {
-        OR: [
-          { email: createUserDto.email },
-          { username: createUserDto.username },
-        ],
-      },
-    });
-
-    if (checkIfUserExists) {
-      throw new BadRequestException(`O usuário ou email já está em uso`);
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    try {
+      const user = this.usersRepository.create({
+        ...createUserDto,
+        passwordHash: createUserDto.password,
+      });
+      return await this.usersRepository.save(user);
+    } catch (error) {
+      throw new BadRequestException('Não foi possível criar o usuário.');
     }
-
-    const passwordHashed = await bcrypt.hash(password, 10);
-
-    const user = await this.prismaService.user.create({
-      data: {
-        ...userData,
-        passwordHash: passwordHashed,
-      },
-    });
-
-    const { passwordHash, ...safeUser } = user;
-    return safeUser;
   }
 
-  async findOneById(id: string): Promise<UserResponseDto | null> {
-    return this.prismaService.user.findUnique({ where: { id } });
+  findAll(): Promise<UserResponseDto[] | null> {
+    return this.usersRepository.find();
   }
 
-  async findAll(): Promise<UserResponseDto[] | null> {
-    return this.prismaService.user.findMany();
+  findOne(id: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { id } });
   }
 
-  async findOneByEmail(email: string) {
-    return this.prismaService.user.findUnique({
-      where: { email },
-    });
+  findOneByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({ where: { email } });
   }
 }
