@@ -7,6 +7,8 @@ import {
   IsBoolean,
   IsDateString,
   IsNumber,
+  Min,
+  IsInt,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
@@ -14,6 +16,7 @@ import {
   PaymentMethod,
   TransactionStatus,
 } from '../entities/transaction.entity';
+import { Type } from 'class-transformer';
 
 export class CreateTransactionDto {
   @ApiProperty({
@@ -50,7 +53,9 @@ export class CreateTransactionDto {
     description: 'Numero de parcelas, Valor da transação',
     example: 2,
   })
-  @IsNumber()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
   totalInstallments: number;
 
   @ApiProperty({
@@ -85,8 +90,10 @@ export class CreateTransactionDto {
   @ApiProperty({
     description: 'Método de pagamento utilizado',
     enum: TransactionStatus,
+    default: TransactionStatus.PENDING,
     example: TransactionStatus.PENDING,
   })
   @IsEnum(TransactionStatus)
-  transactionStatus: TransactionStatus;
+  @IsOptional()
+  transactionStatus?: TransactionStatus = TransactionStatus.PENDING;
 }

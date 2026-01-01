@@ -30,23 +30,78 @@ export class TransactionsService {
       }),
     );
 
-    if (createTransactionDto.totalInstallments > 1) {
-      await this.installmentsService.createInstallments(
-        {
-          amount: createTransactionDto.amount,
-          dueDate: createTransactionDto.dueDate,
-          transactionId: transaction.id,
-        },
-        userId,
-        createTransactionDto.totalInstallments,
-      );
-    }
+    await this.installmentsService.createInstallments(
+      {
+        amount: createTransactionDto.amount,
+        dueDate: createTransactionDto.dueDate,
+        transactionId: transaction.id,
+      },
+      userId,
+      createTransactionDto.totalInstallments,
+    );
 
     return transaction;
   }
 
-  findAll(): Promise<Transaction[] | null> {
-    return this.transactionRepository.find();
+  async findAll(
+    userId: string,
+    query: {
+      title?: string;
+      status?: string;
+      categoryId?: string;
+      page?: number;
+      limit?: number;
+    },
+  ) {
+    const page = query.page ? Number(query.page) : 1;
+    const limit = query.limit ? Number(query.limit) : 10;
+    const skip = (page - 1) * limit;
+
+    const qb = this.transactionRepository
+      .createQueryBuilder('transaction')
+      .leftJoinAndSelect('transaction.category', 'category')
+      .where('transaction.userId = :userId', { userId });
+
+    if (query.title) {
+      qb.andWhere('LOWER(transaction.title) LIKE LOWER(:title)', {
+        title: `%${query.title}%`,
+      });
+    }
+
+    if (query.status) {
+      qb.andWhere('transaction.status = :status', {
+        status: query.status,
+      });
+    }
+
+    if (query.categoryId) {
+      qb.andWhere('transaction.categoryId = :categoryId', {
+        categoryId: query.categoryId,
+      });
+    }
+
+    const [data, totalItems] = await qb
+      .orderBy('transaction.createdAt', 'DESC')
+      .skip(skip)
+      .take(limit)
+      .getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages: Math.ceil(totalItems / limit),
+      },
+    };
+  }
+
+  async findById(id: string, userId: string): Promise<Transaction | null> {
+    return this.transactionRepository.findOne({
+      where: { id, user: { id: userId } },
+      relations: ['category', 'installments'],
+    });
   }
 
   async currentBalance(userId: string) {
@@ -161,7 +216,7 @@ export class TransactionsService {
         user: { id: userId },
       },
       order: {
-        date: 'DESC',
+        createdAt: 'DESC',
       },
       take: limit,
     });

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { TransactionsService } from '../services/transactions.service';
 import { Transaction } from '../entities/transaction.entity';
@@ -19,8 +27,16 @@ export class TransactionsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all transactions' })
-  findAll(): Promise<Transaction[] | null> {
-    return this.transactionsService.findAll();
+  findAll(@Headers('x-user-id') userId: string, @Query() query: any) {
+    return this.transactionsService.findAll(userId, query);
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Get transaction by ID' })
+  findById(
+    @Param('id') id: string,
+    @Headers('x-user-id') userId: string,
+  ): Promise<Transaction | null> {
+    return this.transactionsService.findById(id, userId);
   }
 }
