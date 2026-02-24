@@ -12,7 +12,6 @@ import {
 } from 'typeorm';
 
 import { Category } from './category.entity';
-import { Installment } from './installment.entity';
 
 export enum TransactionType {
   INCOME = 'income',
@@ -74,11 +73,6 @@ export class Transaction {
     onDelete: 'CASCADE',
   })
   category: Category;
-
-  @OneToMany(() => Installment, (installment) => installment.transaction, {
-    onDelete: 'CASCADE',
-  })
-  installments: Installment[];
 
   @Column({ type: 'timestamp' })
   date: Date;

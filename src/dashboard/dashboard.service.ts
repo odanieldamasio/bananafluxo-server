@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { TransactionsService } from 'src/transactions/services/transactions.service';
+import { TransactionsService } from './../transactions/services/transactions.service';
 
 @Injectable()
 export class DashboardService {

@@ -8,15 +8,13 @@ import {
 } from '../entities/transaction.entity';
 import { CreateTransactionDto } from '../dto/create-transaction.dto';
 import { MonthlyPerformanceDto } from '../dto/monthly-performance.dto';
-import { InstallmentsService } from './installments.service';
-import { getCurrentMonthRange } from 'src/utils/date.util';
+import { getCurrentMonthRange } from './../../utils/date.util';
 
 @Injectable()
 export class TransactionsService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
-    private readonly installmentsService: InstallmentsService,
   ) {}
 
   async create(
@@ -28,16 +26,6 @@ export class TransactionsService {
         ...createTransactionDto,
         userId,
       }),
-    );
-
-    await this.installmentsService.createInstallments(
-      {
-        amount: createTransactionDto.amount,
-        dueDate: createTransactionDto.dueDate,
-        transactionId: transaction.id,
-      },
-      userId,
-      createTransactionDto.totalInstallments,
     );
 
     return transaction;
